@@ -31,7 +31,7 @@ describe("app", () => {
     });
   });
   describe("/api/articles", () => {
-    describe.only("Successful requests", () => {
+    describe("Successful requests", () => {
       test("200 GET: responds with an array of articles sorted in descending order", () => {
         return request(app)
           .get("/api/articles")

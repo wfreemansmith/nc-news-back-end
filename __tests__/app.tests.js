@@ -30,14 +30,14 @@ describe("app", () => {
       });
     });
     describe("Error handling", () => {
-      // test("should respond with error message when user inputs incorrect address", () => {
-      //   return request(app)
-      //     .get("/api/incorrect-address")
-      //     .expect(404)
-      //     .then((response) => {
-      //       // console.log(response);
-      //     });
-      // });
+      test("should respond with error message when user inputs incorrect address", () => {
+        return request(app)
+          .get("/api/incorrect-address")
+          .expect(404)
+          .then((response) => {
+            expect(response.status).toBe(404);
+          });
+      });
     });
   });
 });

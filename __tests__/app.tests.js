@@ -93,7 +93,7 @@ describe("app", () => {
           expect(body.msg).toBe("Path not found");
         });
     });
-    test("404: should inform user when requested article does not exist", () => {
+    test("404: should return message when user submits a request for a valid but non-existent record", () => {
       return request(app)
         .get("/api/articles/99")
         .expect(404)
@@ -101,5 +101,10 @@ describe("app", () => {
           expect(body.msg).toBe("Record doesn't exist");
         });
     });
+    test("400: should return message when user inputs an invalid request", () => {
+      return request(app).get("/api/articles/sandwich").expect(400).then(({body}) => {
+        expect(body.msg).toBe("Invalid request")
+      })
+    })
   });
 });

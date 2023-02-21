@@ -74,7 +74,7 @@ describe("app", () => {
               "body",
               "I find this existence challenging"
             );
-            // expect(article).toHaveProperty("created_at", expect(_________));
+            expect(article).toHaveProperty("created_at", "2020-07-09T20:11:00.000Z");
             expect(article).toHaveProperty("votes", 100);
             expect(article).toHaveProperty(
               "article_img_url",
@@ -91,6 +91,14 @@ describe("app", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("Path not found");
+        });
+    });
+    test("404: should inform user when requested article does not exist", () => {
+      return request(app)
+        .get("/api/articles/99")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Record doesn't exist");
         });
     });
   });

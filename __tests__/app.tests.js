@@ -58,33 +58,34 @@ describe("app", () => {
           });
       });
     });
-    describe("/api/articles/:article_id/comments", () => {
-      test("should return an array of comments, most recent first, filtered by given article id", () => {
-        return request(app)
-          .get("/api/articles/3/comments")
-          .expect(200)
-          .then(({ body }) => {
-            const { comments } = body;
-            const expectedResponse = [
-              {
-                comment_id: 11,
-                body: "Ambidextrous marsupial",
-                votes: 0,
-                author: "icellusedkars",
-                article_id: 3,
-                created_at: "2020-09-19T23:10:00.000Z",
-              },
-              {
-                comment_id: 10,
-                body: "git push origin master",
-                votes: 0,
-                author: "icellusedkars",
-                article_id: 3,
-                created_at: "2020-06-20T07:24:00.000Z",
-              },
-            ];
-            expect(comments).toEqual(expectedResponse);
-          });
+      describe("/api/articles/:article_id/comments", () => {
+        test("should return an array of comments, most recent first, filtered by given article id", () => {
+          return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({ body }) => {
+              const { comments } = body;
+              const expectedResponse = [
+                {
+                  comment_id: 11,
+                  body: "Ambidextrous marsupial",
+                  votes: 0,
+                  author: "icellusedkars",
+                  article_id: 3,
+                  created_at: "2020-09-19T23:10:00.000Z",
+                },
+                {
+                  comment_id: 10,
+                  body: "git push origin master",
+                  votes: 0,
+                  author: "icellusedkars",
+                  article_id: 3,
+                  created_at: "2020-06-20T07:24:00.000Z",
+                },
+              ];
+              expect(comments).toEqual(expectedResponse);
+            });
+        });
       });
     });
     describe("/api/articles/:article_id", () => {
@@ -112,7 +113,7 @@ describe("app", () => {
             );
           });
       });
-    });  
+    }); 
   });
   describe("Error handling", () => {
     test("404: should respond with error message when user inputs incorrect address", () => {

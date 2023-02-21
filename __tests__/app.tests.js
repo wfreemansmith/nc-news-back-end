@@ -57,6 +57,32 @@ describe("app", () => {
           });
       });
     });
+    describe("/api/articles/:article_id", () => {
+      test("should respond with the correct article when given article_id", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(( {body} ) => {
+            const {article} = body
+            expect(article).toHaveProperty("article_id", 1);
+            expect(article).toHaveProperty(
+              "title",
+              "Living in the shadow of a great man"
+            );
+            expect(article).toHaveProperty("author", "butter_bridge");
+            expect(article).toHaveProperty(
+              "body",
+              "I find this existence challenging"
+            );
+            expect(article).toHaveProperty("created_at", "2020-07-09T20:11:00.000Z");
+            expect(article).toHaveProperty("votes", 100);
+            expect(article).toHaveProperty(
+              "article_img_url",
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            );
+          });
+      });
+    });  
   });
   describe("Error handling", () => {
     test("404: should respond with error message when user inputs incorrect address", () => {
@@ -67,5 +93,18 @@ describe("app", () => {
           expect(body.msg).toBe("Path not found");
         });
     });
+    test("404: should return message when user submits a request for a valid but non-existent record", () => {
+      return request(app)
+        .get("/api/articles/99")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Record doesn't exist");
+        });
+    });
+    test("400: should return message when user inputs an invalid request", () => {
+      return request(app).get("/api/articles/sandwich").expect(400).then(({body}) => {
+        expect(body.msg).toBe("Invalid request")
+      })
+    })
   });
 });

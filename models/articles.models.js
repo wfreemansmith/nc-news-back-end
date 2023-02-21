@@ -20,4 +20,23 @@ const selectArticles = () => {
     });
 };
 
-module.exports = { selectArticles };
+const selectArticleById = (article_id) => {
+  if (isNaN(article_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid request" });
+  }
+
+  return db
+    .query(
+      `SELECT * FROM articles
+    WHERE article_id=$1`,
+      [article_id]
+    )
+    .then((response) => {
+      if (response.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "Record doesn't exist" });
+      }
+      return response.rows[0];
+    });
+};
+
+module.exports = { selectArticles, selectArticleById };

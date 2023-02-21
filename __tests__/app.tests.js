@@ -13,8 +13,8 @@ beforeEach(() => {
 });
 
 describe("app", () => {
-  describe("/api/topics", () => {
-    describe("Successful requests", () => {
+  describe("Successful requests", () => {
+    describe("/api/topics", () => {
       test("200 GET: responds with an array of topics objects", () => {
         return request(app)
           .get("/api/topics")
@@ -29,9 +29,7 @@ describe("app", () => {
           });
       });
     });
-  });
-  describe("/api/articles", () => {
-    describe("Successful requests", () => {
+    describe("/api/articles", () => {
       test("200 GET: responds with an array of articles sorted in descending order", () => {
         return request(app)
           .get("/api/articles")
@@ -59,24 +57,14 @@ describe("app", () => {
           });
       });
     });
-    describe("Error handling", () => {
-      test("should respond with error message when user inputs incorrect address", () => {
-        return request(app)
-          .get("/api/incorrect-address")
-          .expect(404)
-          .then((response) => {
-            expect(response.status).toBe(404);
-          });
-      });
-    });
   });
-  describe("General error handling", () => {
-    test("should respond with error message when user inputs incorrect address", () => {
+  describe("Error handling", () => {
+    test("404: should respond with error message when user inputs incorrect address", () => {
       return request(app)
         .get("/api/incorrect-address")
         .expect(404)
-        .then((response) => {
-          expect(response.status).toBe(404);
+        .then(({ body }) => {
+          expect(body.msg).toBe("Path not found");
         });
     });
   });

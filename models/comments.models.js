@@ -23,4 +23,8 @@ const selectCommentsById = (article_id) => {
     });
 };
 
+const insertComment = () => {
+
+}
+
 module.exports = { selectCommentsById, insertComment };

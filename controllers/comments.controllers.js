@@ -15,4 +15,8 @@ const getCommentsById = (req, res, next) => {
     });
 };
 
+const postComment = (req, res, next) => {
+  
+}
+
 module.exports = { getCommentsById, postComment };

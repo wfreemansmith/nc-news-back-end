@@ -173,6 +173,19 @@ describe("app", () => {
             expect(body.msg).toBe("No results found");
           });
       });
+      test.only("400 POST: should return 'Article does not exist' message when user posts comment on a non-existent article", () => {
+        const comment = {
+          username: "rogersop",
+          body: "Generic comment section antics",
+        };
+        return request(app)
+          .post("/api/articles/99/comments")
+          .expect(404)
+          .send(comment)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article does not exist");
+          });
+      });
     });
 
     describe("/api/articles/sandwich/comments", () => {
@@ -182,6 +195,58 @@ describe("app", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid request");
+          });
+      });
+      test("400: should return message when user posts using an invalid path", () => {
+        const comment = {
+          username: "rogersop",
+          body: "Generic comment section antics",
+        };
+        return request(app)
+          .post("/api/articles/sandwich/comments")
+          .expect(400)
+          .send(comment)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
+          });
+      });
+    });
+
+    describe("/api/articles/:article_id/comments", () => {
+      test("400 POST: should return 'Invalid input' message when posting an object with incomplete data", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({ })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 POST: should return 'Invalid input' message when posting an invalid data type", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send("{ }")
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test.only("400 POST: should return message 'User not found' when provided an invalid username", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(404)
+          .send({ username: "daryl69", body: "hello"})
+          .then(({ body }) => {
+            expect(body.msg).toBe("User does not exist");
+          });
+      });
+      test("400 POST: should return 'Invalid input' message when present fields with invalid data type", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({ username: "rogersop", body: 123})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
           });
       });
     });

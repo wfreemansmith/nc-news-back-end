@@ -16,6 +16,7 @@ const {
   internalErrorHandler,
   pathNotFoundHandler,
   customErrorHandler,
+  dbErrorHandler,
 } = require("./controllers/error-handling.controllers.js");
 
 const app = express();
@@ -29,6 +30,7 @@ app.post("/api/articles/:article_id/comments", postComment);
 
 app.use(pathNotFoundHandler);
 app.use(customErrorHandler);
+app.use(dbErrorHandler);
 app.use(internalErrorHandler);
 
 module.exports = app;

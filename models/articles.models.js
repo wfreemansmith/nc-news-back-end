@@ -39,4 +39,8 @@ const selectArticleById = (article_id) => {
     });
 };
 
-module.exports = { selectArticles, selectArticleById };
+const updateVote = (newVote) => {
+
+}
+
+module.exports = { selectArticles, selectArticleById, updateVote };

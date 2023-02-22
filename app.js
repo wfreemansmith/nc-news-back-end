@@ -5,6 +5,7 @@ const { getTopics } = require("./controllers/topics.controllers");
 const {
   getArticles,
   getArticleById,
+  patchVote,
 } = require("./controllers/articles.controllers");
 
 const {
@@ -24,6 +25,7 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id/comments", getCommentsById);
 app.get("/api/articles/:article_id", getArticleById);
+app.patch("/api/articles/:article_id", patchVote)
 
 app.use(pathNotFoundHandler);
 app.use(customErrorHandler);

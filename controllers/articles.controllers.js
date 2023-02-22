@@ -1,6 +1,7 @@
 const {
   selectArticles,
   selectArticleById,
+  updateVote
 } = require("../models/articles.models");
 
 const getArticles = (req, res, next) => {
@@ -24,4 +25,8 @@ const getArticleById = (req, res, next) => {
     });
 };
 
-module.exports = { getArticles, getArticleById };
+const patchVote = (req, res, next) => {
+  
+}
+
+module.exports = { getArticles, getArticleById, patchVote };

@@ -173,7 +173,7 @@ describe("app", () => {
             expect(body.msg).toBe("No results found");
           });
       });
-      test.only("400 POST: should return 'Article does not exist' message when user posts comment on a non-existent article", () => {
+      test("400 POST: should return 'Article does not exist' message when user posts comment on a non-existent article", () => {
         const comment = {
           username: "rogersop",
           body: "Generic comment section antics",

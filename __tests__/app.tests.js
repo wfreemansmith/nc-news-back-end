@@ -231,7 +231,7 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid input");
           });
       });
-      test.only("400 POST: should return message 'User not found' when provided an invalid username", () => {
+      test("400 POST: should return message 'User not found' when provided an invalid username", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(404)

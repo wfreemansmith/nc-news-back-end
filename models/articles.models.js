@@ -39,8 +39,22 @@ const selectArticleById = (article_id) => {
     });
 };
 
-const updateVote = (newVote) => {
+const updateVote = (newVote, article_id) => {
+  if (isNaN(article_id) || isNaN(newVote)) {
+    return Promise.reject({ status: 400, msg: "Invalid request" });
+  }
 
-}
+  return db
+    .query(
+      `UPDATE articles
+       SET votes = votes + $1
+       WHERE article_id = $2
+       RETURNING *;`,
+      [newVote, article_id]
+    )
+    .then((response) => {
+      return response.rows[0];
+    });
+};
 
 module.exports = { selectArticles, selectArticleById, updateVote };

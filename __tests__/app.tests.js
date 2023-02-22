@@ -4,6 +4,7 @@ const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const { expect } = require("@jest/globals");
+const comments = require("../db/data/test-data/comments");
 
 afterAll(() => {
   db.end();
@@ -76,6 +77,24 @@ describe("app", () => {
               expect(comment).toHaveProperty("created_at", expect.any(String));
             });
             expect(comments).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      test("201 POST: should post a comment to the db and return the posted comment", () => {
+        const comment = {
+          username: "rogersop",
+          body: "Generic comment section antics",
+        };
+        return request(app)
+          .post("/api/articles/3/comments")
+          .expect(201)
+          .send(comment)
+          .then(({ body }) => {
+            const { comment } = body;
+            expect(comment).toHaveProperty("article_id", 3);
+            expect(comment).toHaveProperty("author", "rogersop");
+            expect(comment).toHaveProperty("body", "Generic comment section antics");
+            expect(comment).toHaveProperty("comment_id", 19);
+            expect(comment).toHaveProperty("votes", 0);
           });
       });
     });

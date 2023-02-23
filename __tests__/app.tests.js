@@ -58,49 +58,49 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
-      test("200 GET: filter results by topic", () => {
-        return request(app)
-          .get("/api/articles?topic=mitch")
-          .expect(200)
-          .then(({ body }) => {
-            const { articles } = body;
-            articles.forEach((article) => {
-              expect(article.topic).toBe("mitch");
+        test("200 GET: filter results by topic", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch")
+            .expect(200)
+            .then(({ body }) => {
+              const { articles } = body;
+              articles.forEach((article) => {
+                expect(article.topic).toBe("mitch");
+              });
+              expect(articles).toHaveLength(11);
             });
-            expect(articles).toHaveLength(11);
-          });
-      });
-      test("200 GET: sort articles by given column", () => {
-        return request(app)
-          .get("/api/articles?sort_by=author")
-          .expect(200)
-          .then(({ body }) => {
-            const { articles } = body;
-            expect(articles).toBeSortedBy("author", { descending: true });
-          });
-      });
-      test("200 GET: order articles by ascending as well as descending", () => {
-        return request(app)
-          .get("/api/articles?order=asc")
-          .expect(200)
-          .then(({ body }) => {
-            const { articles } = body;
-            expect(articles).toBeSortedBy("created_at", { descending: false });
-          });
-      });
-      test("200 GET: successfully manages multiple queries at the same time", () => {
-        return request(app)
-          .get("/api/articles?topic=mitch&sort_by=title&order=asc")
-          .expect(200)
-          .then(({ body }) => {
-            const { articles } = body;
-            expect(articles).toBeSortedBy("title", { descending: false });
-            articles.forEach((article) => {
-              expect(article.topic).toBe("mitch");
+        });
+        test("200 GET: sort articles by given column", () => {
+          return request(app)
+            .get("/api/articles?sort_by=author")
+            .expect(200)
+            .then(({ body }) => {
+              const { articles } = body;
+              expect(articles).toBeSortedBy("author", { descending: true });
             });
-            expect(articles).toHaveLength(11);
-          });
-      });
+        });
+        test("200 GET: order articles by ascending as well as descending", () => {
+          return request(app)
+            .get("/api/articles?order=asc")
+            .expect(200)
+            .then(({ body }) => {
+              const { articles } = body;
+              expect(articles).toBeSortedBy("created_at", { descending: false });
+            });
+        });
+        test("200 GET: successfully manages multiple queries at the same time", () => {
+          return request(app)
+            .get("/api/articles?topic=mitch&sort_by=title&order=asc")
+            .expect(200)
+            .then(({ body }) => {
+              const { articles } = body;
+              expect(articles).toBeSortedBy("title", { descending: false });
+              articles.forEach((article) => {
+                expect(article.topic).toBe("mitch");
+              });
+              expect(articles).toHaveLength(11);
+            });
+        });
     });
 
     describe("/api/articles/:article_id/comments", () => {
@@ -170,17 +170,20 @@ describe("app", () => {
           });
       });
     });
-    describe('/api/users', () => {
-      test('200 GET: should return an array of users', () => {
-        return request(app).get("/api/users").expect(200).then(({body}) => {
-          const { users} = body;
-          users.forEach((user) => {
-            expect(user).toHaveProperty("username", expect.any(String));
-            expect(user).toHaveProperty("name", expect.any(String));
-            expect(user).toHaveProperty("avatar_url", expect.any(String));
-          })
-          expect(users.length).toBe(4)
-        })
+    describe("/api/users", () => {
+      test("200 GET: should return an array of users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            const { users } = body;
+            users.forEach((user) => {
+              expect(user).toHaveProperty("username", expect.any(String));
+              expect(user).toHaveProperty("name", expect.any(String));
+              expect(user).toHaveProperty("avatar_url", expect.any(String));
+            });
+            expect(users.length).toBe(4);
+          });
       });
     });
   });
@@ -193,6 +196,25 @@ describe("app", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).toBe("Path not found");
+          });
+      });
+    });
+
+    describe("/api/articles", () => {
+      test("400 GET: should return 'Invalid sort query' when given non-existent field", () => {
+        return request(app)
+          .get("/api/articles?sort_by=tornado")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort query");
+          });
+      });
+      test("400 GET: should return 'Invalid order query' when given input other than ASC or DESC", () => {
+        return request(app)
+          .get("/api/articles?order=backwards")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid order query");
           });
       });
     });

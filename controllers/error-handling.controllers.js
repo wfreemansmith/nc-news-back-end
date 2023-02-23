@@ -16,7 +16,7 @@ const dbErrorHandler = (err, req, res, next) => {
     let contentType = "Record"
     if (/articles/g.test(err.detail)) contentType = "Article";
     if (/users/g.test(err.detail)) contentType = "User";
-    res.status(404).send({ msg: `${contentType} does not exist` });
+    res.status(404).send({ msg: `${contentType} not found` });
   } else {
     next(err);
   }

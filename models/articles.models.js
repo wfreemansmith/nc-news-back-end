@@ -72,11 +72,11 @@ const selectArticleById = (article_id) => {
       `,
       [article_id]
     )
-    .then(({rows}) => {
+    .then(({ rows }) => {
       if (rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "No results found" });
+        return Promise.reject({ status: 404, msg: "Article not found" });
       } else {
-        const result = rows[0]
+        const result = rows[0];
         result.comment_count *= 1;
         return result;
       }
@@ -100,12 +100,10 @@ const updateVote = (newVote, article_id) => {
        RETURNING *;`,
       [newVote, article_id]
     )
-    .then((response) => {
-      if (response.rowCount === 0) {
-        return Promise.reject({ status: 404, msg: "Article does not exist" });
-      } else {
-        return response.rows[0];
-      }
+    .then(({ rows }) => {
+      return !rows.length
+        ? Promise.reject({ status: 404, msg: "Article not found" })
+        : rows[0];
     });
 };
 

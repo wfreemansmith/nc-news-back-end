@@ -14,12 +14,10 @@ const selectCommentsById = (article_id) => {
           `,
       [article_id]
     )
-    .then((response) => {
-      if (!response.rowCount) {
-        return Promise.reject({ status: 404, msg: "No results found" });
-      } else {
-        return response.rows;
-      }
+    .then(({ rows }) => {
+      return !rows.length
+        ? Promise.reject({ status: 404, msg: "Article not found" })
+        : rows;
     });
 };
 
@@ -46,8 +44,7 @@ const insertComment = (commentObj, { article_id }) => {
       [body, article_id, username]
     )
     .then((response) => {
-        return response.rows[0];
-      // }
+      return response.rows[0];
     });
 };
 

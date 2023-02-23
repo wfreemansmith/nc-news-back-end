@@ -3,8 +3,6 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
-const { expect } = require("@jest/globals");
-const comments = require("../db/data/test-data/comments");
 
 afterAll(() => {
   db.end();
@@ -217,7 +215,7 @@ describe("app", () => {
 
   describe("Error handling", () => {
     describe("/incorrect-address", () => {
-      test("404: should respond with error message when user inputs incorrect address", () => {
+      test("404 GET: should respond with error message when user inputs incorrect address", () => {
         return request(app)
           .get("/incorrect-address")
           .expect(404)
@@ -255,18 +253,18 @@ describe("app", () => {
     });
 
     describe("/api/articles/99", () => {
-      test("404: should return message when user submits a request for a valid but non-existent record", () => {
+      test("404 GET: should return message when user submits a request for a valid but non-existent article", () => {
         return request(app)
           .get("/api/articles/99")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("No results found");
+            expect(body.msg).toBe("Article not found");
           });
       });
     });
 
     describe("/api/articles/sandwich", () => {
-      test("400: should return message when user inputs an invalid request", () => {
+      test("400 GET: should return message when user inputs an invalid request", () => {
         return request(app)
           .get("/api/articles/sandwich")
           .expect(400)
@@ -286,15 +284,15 @@ describe("app", () => {
     });
 
     describe("/api/articles/99/comments", () => {
-      test("404: should return message when user requests comments from a non-existent article", () => {
+      test("404 GET: should return message when user requests comments from a non-existent article", () => {
         return request(app)
           .get("/api/articles/99/comments")
           .expect(404)
           .then(({ body }) => {
-            expect(body.msg).toBe("No results found");
+            expect(body.msg).toBe("Article not found");
           });
       });
-      test("400 POST: should return 'Article does not exist' message when user posts comment on a non-existent article", () => {
+      test("400 POST: should return 'Article not found' message when user posts comment on a non-existent article", () => {
         const comment = {
           username: "rogersop",
           body: "Generic comment section antics",
@@ -304,13 +302,13 @@ describe("app", () => {
           .expect(404)
           .send(comment)
           .then(({ body }) => {
-            expect(body.msg).toBe("Article does not exist");
+            expect(body.msg).toBe("Article not found");
           });
       });
     });
 
     describe("/api/articles/sandwich/comments", () => {
-      test("400: should return message when user inputs an invalid request", () => {
+      test("400 GET: should return message when user inputs an invalid request", () => {
         return request(app)
           .get("/api/articles/sandwich/comments")
           .expect(400)
@@ -318,7 +316,7 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid request");
           });
       });
-      test("400: should return message when user posts using an invalid path", () => {
+      test("400 POST: should return message when user posts using an invalid path", () => {
         const comment = {
           username: "rogersop",
           body: "Generic comment section antics",
@@ -352,13 +350,13 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid input");
           });
       });
-      test("400 POST: should return message 'User not found' when provided an invalid username", () => {
+      test("404 POST: should return message 'User not found' when provided an invalid username", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(404)
           .send({ username: "daryl69", body: "hello"})
           .then(({ body }) => {
-            expect(body.msg).toBe("User does not exist");
+            expect(body.msg).toBe("User not found");
           });
       });
       test("400 POST: should return 'Invalid input' message when present fields with invalid data type", () => {
@@ -399,13 +397,13 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid input");
           });
       });
-      test("404: should return 'Article doesn't exist' message when user updates non-existent article", () => {
+      test("404 PATCH: should return 'Article not found' message when user updates non-existent article", () => {
         return request(app)
           .patch("/api/articles/99")
           .expect(404)
           .send({ inc_votes: 10 })
           .then(({ body }) => {
-            expect(body.msg).toBe("Article does not exist");
+            expect(body.msg).toBe("Article not found");
           });
       });
     });

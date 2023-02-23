@@ -1,7 +1,7 @@
 const {
   selectArticles,
   selectArticleById,
-  updateVote
+  updateVote,
 } = require("../models/articles.models");
 
 const getArticles = (req, res, next) => {
@@ -26,7 +26,15 @@ const getArticleById = (req, res, next) => {
 };
 
 const patchVote = (req, res, next) => {
-  
-}
+  const { inc_votes } = req.body;
+  const { article_id } = req.params;
+  updateVote(inc_votes, article_id)
+    .then((article) => {
+      res.status(200).send({ article });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
 
 module.exports = { getArticles, getArticleById, patchVote };

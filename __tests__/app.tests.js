@@ -58,6 +58,49 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
+      test("200 GET: filter results by topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
+      test("200 GET: sort articles by given column", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("author", { descending: true });
+          });
+      });
+      test("200 GET: order articles by ascending as well as descending", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: false });
+          });
+      });
+      test("200 GET: successfully manages multiple queries at the same time", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("title", { descending: false });
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
     });
 
     describe("/api/articles/:article_id/comments", () => {
@@ -198,7 +241,7 @@ describe("app", () => {
         return request(app)
           .patch("/api/articles/1")
           .expect(400)
-          .send({ })
+          .send({})
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -207,7 +250,7 @@ describe("app", () => {
         return request(app)
           .patch("/api/articles/1")
           .expect(400)
-          .send({ some_random_key: 83})
+          .send({ some_random_key: 83 })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -216,7 +259,7 @@ describe("app", () => {
         return request(app)
           .patch("/api/articles/1")
           .expect(400)
-          .send({ inc_vote: "rogersop"})
+          .send({ inc_vote: "rogersop" })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -229,7 +272,7 @@ describe("app", () => {
           .then(({ body }) => {
             expect(body.msg).toBe("Article does not exist");
           });
-        });
+      });
     });
   });
 });

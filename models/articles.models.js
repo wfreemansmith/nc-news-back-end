@@ -1,6 +1,24 @@
 const db = require("../db/connection.js");
 
-const selectArticles = () => {
+const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
+  const sortbyWhitelist = ["title", "topic", "author", "body", "created_at"];
+
+  if (!sortbyWhitelist.includes(sort_by.toLocaleLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid sort query" });
+  }
+
+  if (!["ASC", "DESC"].includes(order.toUpperCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+
+  let topicQuery = ``;
+  const queryValues = [];
+
+  if (topic) {
+    topicQuery = `WHERE topic = $1 `;
+    queryValues.push(topic);
+  }
+
   return db
     .query(
       `
@@ -8,9 +26,11 @@ const selectArticles = () => {
       COUNT(comments.article_id) AS comment_count FROM articles
       LEFT JOIN comments
       ON articles.article_id = comments.article_id
+      ${topicQuery}
       GROUP BY articles.article_id
-      ORDER by articles.created_at DESC;
-      `
+      ORDER by ${sort_by} ${order};
+      `,
+      queryValues
     )
     .then(({ rows }) => {
       rows.forEach((row) => {

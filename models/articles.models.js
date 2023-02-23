@@ -40,7 +40,11 @@ const selectArticleById = (article_id) => {
 };
 
 const updateVote = (newVote, article_id) => {
-  if (isNaN(article_id) || isNaN(newVote)) {
+  if (isNaN(article_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid request" });
+  }
+
+  if (isNaN(newVote)) {
     return Promise.reject({ status: 400, msg: "Invalid input" });
   }
 

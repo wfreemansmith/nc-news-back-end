@@ -161,6 +161,15 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid request");
           });
       });
+      test("400 PATCH: should return message when user updates to an invalid path", () => {
+        return request(app)
+          .patch("/api/articles/sandwich")
+          .expect(400)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
+          });
+      });
     });
 
     describe("/api/articles/99/comments", () => {

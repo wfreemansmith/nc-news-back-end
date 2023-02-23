@@ -212,10 +212,11 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid input");
           });
       });
-      test.skip("404: should return 'Article doesn't exist' message when user updates non-existent article", () => {
+      test("404: should return 'Article doesn't exist' message when user updates non-existent article", () => {
         return request(app)
           .patch("/api/articles/99")
           .expect(404)
+          .send({ inc_votes: 10 })
           .then(({ body }) => {
             expect(body.msg).toBe("Article does not exist");
           });

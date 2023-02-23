@@ -53,7 +53,11 @@ const updateVote = (newVote, article_id) => {
       [newVote, article_id]
     )
     .then((response) => {
-      return response.rows[0];
+      if (response.rowCount === 0) {
+        return Promise.reject({ status: 404, msg: "Article does not exist" });
+      } else {
+        return response.rows[0];
+      }
     });
 };
 

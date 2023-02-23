@@ -40,6 +40,12 @@ const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
     });
 };
 
+const checkTopic = (topic) => {
+  return db.query(`SELECT $1 FROM topics`, [topic]).then(({rowCount}) => {
+    return rowCount;
+  })
+}
+
 const selectArticleById = (article_id) => {
   if (isNaN(article_id)) {
     return Promise.reject({ status: 400, msg: "Invalid request" });

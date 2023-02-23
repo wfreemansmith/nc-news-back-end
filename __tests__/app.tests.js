@@ -58,49 +58,58 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
-        test("200 GET: filter results by topic", () => {
-          return request(app)
-            .get("/api/articles?topic=mitch")
-            .expect(200)
-            .then(({ body }) => {
-              const { articles } = body;
-              articles.forEach((article) => {
-                expect(article.topic).toBe("mitch");
-              });
-              expect(articles).toHaveLength(11);
+      test.only("200 GET: return results filteredby topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
             });
-        });
-        test("200 GET: sort articles by given column", () => {
-          return request(app)
-            .get("/api/articles?sort_by=author")
-            .expect(200)
-            .then(({ body }) => {
-              const { articles } = body;
-              expect(articles).toBeSortedBy("author", { descending: true });
+            expect(articles).toHaveLength(11);
+          });
+      });
+      test("200 GET: return results sorted by user-provided value", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("author", { descending: true });
+          });
+      });
+      test("200 GET: return results ordered either descending or ascending", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: false });
+          });
+      });
+      test("200 GET: successfully process multiple queries at the same time", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("title", { descending: false });
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
             });
-        });
-        test("200 GET: order articles by ascending as well as descending", () => {
-          return request(app)
-            .get("/api/articles?order=asc")
-            .expect(200)
-            .then(({ body }) => {
-              const { articles } = body;
-              expect(articles).toBeSortedBy("created_at", { descending: false });
-            });
-        });
-        test("200 GET: successfully manages multiple queries at the same time", () => {
-          return request(app)
-            .get("/api/articles?topic=mitch&sort_by=title&order=asc")
-            .expect(200)
-            .then(({ body }) => {
-              const { articles } = body;
-              expect(articles).toBeSortedBy("title", { descending: false });
-              articles.forEach((article) => {
-                expect(article.topic).toBe("mitch");
-              });
-              expect(articles).toHaveLength(11);
-            });
-        });
+            expect(articles).toHaveLength(11);
+          });
+      });
+      test.only("200 GET: return empty array if queried topic is valid but there are no matching articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toEqual([]);
+          });
+      });
     });
 
     describe("/api/articles/:article_id/comments", () => {
@@ -215,6 +224,14 @@ describe("app", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid order query");
+          });
+      });
+      test("404 GET: should return 'Topic not found' message when given a non-existent topic", () => {
+        return request(app)
+          .get("/api/articles?puppies=yes")
+          .expect(404)
+          .then(() => {
+            expect(body.msg).toBe("Topic not found");
           });
       });
     });

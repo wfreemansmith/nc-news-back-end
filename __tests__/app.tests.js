@@ -108,6 +108,24 @@ describe("app", () => {
             );
           });
       });
+      test("200 PATCH: should increment / decrement an articles vote count by given number and respond with updated article", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(200)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            const { article } = body;
+            expect(article.article_id).toBe(1);
+            expect(article.title).toBe("Living in the shadow of a great man");
+            expect(article.author).toBe("butter_bridge");
+            expect(article.body).toBe("I find this existence challenging");
+            expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+            expect(article.votes).toBe(110);
+            expect(article.article_img_url).toBe(
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            );
+          });
+      });
     });
   });
 
@@ -143,6 +161,15 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid request");
           });
       });
+      test("400 PATCH: should return message when user updates to an invalid path", () => {
+        return request(app)
+          .patch("/api/articles/sandwich")
+          .expect(400)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
+          });
+      });
     });
 
     describe("/api/articles/99/comments", () => {
@@ -165,6 +192,44 @@ describe("app", () => {
             expect(body.msg).toBe("Invalid request");
           });
       });
+    });
+    describe("/api/articles/:article_id", () => {
+      test("400 PATCH: should return 'Invalid input' message when posting an object with incomplete data", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: should return 'Invalid input' message when posting an invalid data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ some_random_key: 83})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: should return 'Invalid input' message when object has invalid data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ inc_vote: "rogersop"})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("404: should return 'Article doesn't exist' message when user updates non-existent article", () => {
+        return request(app)
+          .patch("/api/articles/99")
+          .expect(404)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article does not exist");
+          });
+        });
     });
   });
 });

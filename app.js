@@ -20,6 +20,7 @@ const {
 } = require("./controllers/error-handling.controllers.js");
 
 const app = express();
+app.use(express.json())
 
 app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);

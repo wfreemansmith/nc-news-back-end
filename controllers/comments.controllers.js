@@ -2,6 +2,7 @@ const app = require("../app");
 const {
   insertComment,
   selectCommentsById,
+  deleteComment,
 } = require("../models/comments.models");
 
 const getCommentsById = (req, res, next) => {
@@ -17,6 +18,17 @@ const getCommentsById = (req, res, next) => {
 
 const postComment = (req, res, next) => {
   
-}
+};
 
-module.exports = { getCommentsById, postComment };
+const removeComment = (req, res, next) => {
+  const { comment_id } = req.params;
+  deleteComment(comment_id)
+    .then(() => {
+      res.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { getCommentsById, postComment, removeComment };

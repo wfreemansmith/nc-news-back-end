@@ -184,5 +184,42 @@ describe("app", () => {
           });
       });
     });
+    describe("/api/articles/:article_id", () => {
+      test("400 PATCH: should return 'Invalid input' message when posting an object with incomplete data", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: should return 'Invalid input' message when posting an invalid data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ some_random_key: 83})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: should return 'Invalid input' message when object has invalid data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ inc_vote: "rogersop"})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test.skip("404: should return 'Article doesn't exist' message when user updates non-existent article", () => {
+        return request(app)
+          .patch("/api/articles/99")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article does not exist");
+          });
+        });
+    });
   });
 });

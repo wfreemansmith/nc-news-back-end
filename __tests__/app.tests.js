@@ -58,7 +58,7 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
-      test.only("200 GET: return results filteredby topic", () => {
+      test("200 GET: return results filteredby topic", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
           .expect(200)
@@ -101,7 +101,7 @@ describe("app", () => {
             expect(articles).toHaveLength(11);
           });
       });
-      test.only("200 GET: return empty array if queried topic is valid but there are no matching articles", () => {
+      test("200 GET: return empty array if queried topic is valid but there are no matching articles", () => {
         return request(app)
           .get("/api/articles?topic=paper")
           .expect(200)
@@ -228,9 +228,9 @@ describe("app", () => {
       });
       test("404 GET: should return 'Topic not found' message when given a non-existent topic", () => {
         return request(app)
-          .get("/api/articles?puppies=yes")
+          .get("/api/articles?topic=puppies")
           .expect(404)
-          .then(() => {
+          .then(({ body }) => {
             expect(body.msg).toBe("Topic not found");
           });
       });

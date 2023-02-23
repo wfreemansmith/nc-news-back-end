@@ -1,27 +1,27 @@
 const db = require("../db/connection.js");
 
 const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
-    const sortbyWhitelist = ["title", "topic", "author", "body", "created_at"];
+  const sortbyWhitelist = ["title", "topic", "author", "body", "created_at"];
 
-    if (!sortbyWhitelist.includes(sort_by.toLocaleLowerCase())) {
-      return Promise.reject({ status: 400, msg: "Invalid sort query" });
-    }
+  if (!sortbyWhitelist.includes(sort_by.toLocaleLowerCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid sort query" });
+  }
 
-    if (!["ASC", "DESC"].includes(order.toUpperCase())) {
-      return Promise.reject({ status: 400, msg: "Invalid order query" });
-    }
+  if (!["ASC", "DESC"].includes(order.toUpperCase())) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
 
-    let topicQuery = ``;
-    const queryValues = [];
+  let topicQuery = ``;
+  const queryValues = [];
 
-    if (topic) {
-      topicQuery = `WHERE topic = $1 `;
-      queryValues.push(topic);
-    }
+  if (topic) {
+    topicQuery = `WHERE topic = $1 `;
+    queryValues.push(topic);
+  }
 
-    return db
-      .query(
-        `
+  return db
+    .query(
+      `
         SELECT articles.*,
         COUNT(comments.article_id) AS comment_count FROM articles
         LEFT JOIN comments
@@ -30,8 +30,8 @@ const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
         GROUP BY articles.article_id
         ORDER by ${sort_by} ${order};
         `,
-        queryValues
-      )
+      queryValues
+    )
     .then(({ rows }) => {
       rows.forEach((row) => {
         row.comment_count *= 1;
@@ -41,10 +41,20 @@ const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
 };
 
 const checkTopic = (topic) => {
-  return db.query(`SELECT $1 FROM topics`, [topic]).then(({rowCount}) => {
-    return rowCount;
-  })
-}
+  return db
+    .query(
+      `
+      SELECT * FROM topics
+      WHERE slug = $1
+      `,
+      [topic]
+    )
+    .then(({ rowCount }) => {
+      return !rowCount
+        ? Promise.reject({ status: 404, msg: "Topic not found" })
+        : true;
+    });
+};
 
 const selectArticleById = (article_id) => {
   if (isNaN(article_id)) {
@@ -91,4 +101,4 @@ const updateVote = (newVote, article_id) => {
     });
 };
 
-module.exports = { selectArticles, selectArticleById, updateVote };
+module.exports = { selectArticles, selectArticleById, updateVote, checkTopic };

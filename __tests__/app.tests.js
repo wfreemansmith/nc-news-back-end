@@ -58,6 +58,49 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
+      test("200 GET: filter results by topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
+      test("200 GET: sort articles by given column", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("author", { descending: true });
+          });
+      });
+      test("200 GET: order articles by ascending as well as descending", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: false });
+          });
+      });
+      test("200 GET: successfully manages multiple queries at the same time", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("title", { descending: false });
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
     });
 
     describe("/api/articles/:article_id/comments", () => {
@@ -87,25 +130,24 @@ describe("app", () => {
           .expect(200)
           .then(({ body }) => {
             const { article } = body;
-            expect(article).toHaveProperty("article_id", 1);
-            expect(article).toHaveProperty(
-              "title",
-              "Living in the shadow of a great man"
-            );
-            expect(article).toHaveProperty("author", "butter_bridge");
-            expect(article).toHaveProperty(
-              "body",
-              "I find this existence challenging"
-            );
-            expect(article).toHaveProperty(
-              "created_at",
-              "2020-07-09T20:11:00.000Z"
-            );
-            expect(article).toHaveProperty("votes", 100);
-            expect(article).toHaveProperty(
-              "article_img_url",
+            expect(article.article_id).toBe(1);
+            expect(article.title).toBe("Living in the shadow of a great man");
+            expect(article.author).toBe("butter_bridge");
+            expect(article.body).toBe("I find this existence challenging");
+            expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+            expect(article.votes).toBe(100);
+            expect(article.article_img_url).toBe(
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
             );
+          });
+      });
+      test("200 GET: when returning the requested article also return comment count of article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const { article } = body;
+            expect(article.comment_count).toBe(11);
           });
       });
       test("200 PATCH: should increment / decrement an articles vote count by given number and respond with updated article", () => {
@@ -127,17 +169,20 @@ describe("app", () => {
           });
       });
     });
-    describe('/api/users', () => {
-      test('200 GET: should return an array of users', () => {
-        return request(app).get("/api/users").expect(200).then(({body}) => {
-          const { users} = body;
-          users.forEach((user) => {
-            expect(user).toHaveProperty("username", expect.any(String));
-            expect(user).toHaveProperty("name", expect.any(String));
-            expect(user).toHaveProperty("avatar_url", expect.any(String));
-          })
-          expect(users.length).toBe(4)
-        })
+    describe("/api/users", () => {
+      test("200 GET: should return an array of users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            const { users } = body;
+            users.forEach((user) => {
+              expect(user).toHaveProperty("username", expect.any(String));
+              expect(user).toHaveProperty("name", expect.any(String));
+              expect(user).toHaveProperty("avatar_url", expect.any(String));
+            });
+            expect(users.length).toBe(4);
+          });
       });
     });
   });
@@ -211,7 +256,7 @@ describe("app", () => {
         return request(app)
           .patch("/api/articles/1")
           .expect(400)
-          .send({ })
+          .send({})
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -220,7 +265,7 @@ describe("app", () => {
         return request(app)
           .patch("/api/articles/1")
           .expect(400)
-          .send({ some_random_key: 83})
+          .send({ some_random_key: 83 })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -229,7 +274,7 @@ describe("app", () => {
         return request(app)
           .patch("/api/articles/1")
           .expect(400)
-          .send({ inc_vote: "rogersop"})
+          .send({ inc_vote: "rogersop" })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -242,7 +287,7 @@ describe("app", () => {
           .then(({ body }) => {
             expect(body.msg).toBe("Article does not exist");
           });
-        });
+      });
     });
   });
 });

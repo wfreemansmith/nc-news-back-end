@@ -139,6 +139,14 @@ describe("app", () => {
             expect(article.article_img_url).toBe(
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
             );
+          });
+      });
+      test("200 GET: when returning the requested article also return comment count of article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const { article } = body;
             expect(article.comment_count).toBe(11);
           });
       });

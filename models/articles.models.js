@@ -22,14 +22,14 @@ const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
   return db
     .query(
       `
-      SELECT articles.*,
-      COUNT(comments.article_id) AS comment_count FROM articles
-      LEFT JOIN comments
-      ON articles.article_id = comments.article_id
-      ${topicQuery}
-      GROUP BY articles.article_id
-      ORDER by ${sort_by} ${order};
-      `,
+        SELECT articles.*,
+        COUNT(comments.article_id) AS comment_count FROM articles
+        LEFT JOIN comments
+        ON articles.article_id = comments.article_id
+        ${topicQuery}
+        GROUP BY articles.article_id
+        ORDER by ${sort_by} ${order};
+        `,
       queryValues
     )
     .then(({ rows }) => {
@@ -37,6 +37,22 @@ const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
         row.comment_count *= 1;
       });
       return rows;
+    });
+};
+
+const checkTopic = (topic) => {
+  return db
+    .query(
+      `
+      SELECT * FROM topics
+      WHERE slug = $1
+      `,
+      [topic]
+    )
+    .then(({ rowCount }) => {
+      return !rowCount
+        ? Promise.reject({ status: 404, msg: "Topic not found" })
+        : true;
     });
 };
 
@@ -93,4 +109,4 @@ const updateVote = (newVote, article_id) => {
     });
 };
 
-module.exports = { selectArticles, selectArticleById, updateVote };
+module.exports = { selectArticles, selectArticleById, updateVote, checkTopic };

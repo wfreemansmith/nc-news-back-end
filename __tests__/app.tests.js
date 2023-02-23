@@ -58,7 +58,7 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
-      test("200 GET: filter results by topic", () => {
+      test("200 GET: return results filteredby topic", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
           .expect(200)
@@ -70,7 +70,7 @@ describe("app", () => {
             expect(articles).toHaveLength(11);
           });
       });
-      test("200 GET: sort articles by given column", () => {
+      test("200 GET: return results sorted by user-provided value", () => {
         return request(app)
           .get("/api/articles?sort_by=author")
           .expect(200)
@@ -79,7 +79,7 @@ describe("app", () => {
             expect(articles).toBeSortedBy("author", { descending: true });
           });
       });
-      test("200 GET: order articles by ascending as well as descending", () => {
+      test("200 GET: return results ordered either descending or ascending", () => {
         return request(app)
           .get("/api/articles?order=asc")
           .expect(200)
@@ -88,7 +88,7 @@ describe("app", () => {
             expect(articles).toBeSortedBy("created_at", { descending: false });
           });
       });
-      test("200 GET: successfully manages multiple queries at the same time", () => {
+      test("200 GET: successfully process multiple queries at the same time", () => {
         return request(app)
           .get("/api/articles?topic=mitch&sort_by=title&order=asc")
           .expect(200)
@@ -99,6 +99,15 @@ describe("app", () => {
               expect(article.topic).toBe("mitch");
             });
             expect(articles).toHaveLength(11);
+          });
+      });
+      test("200 GET: return empty array if queried topic is valid but there are no matching articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toEqual([]);
           });
       });
     });
@@ -195,6 +204,33 @@ describe("app", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).toBe("Path not found");
+          });
+      });
+    });
+
+    describe("/api/articles", () => {
+      test("400 GET: should return 'Invalid sort query' when given non-existent field", () => {
+        return request(app)
+          .get("/api/articles?sort_by=tornado")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort query");
+          });
+      });
+      test("400 GET: should return 'Invalid order query' when given input other than ASC or DESC", () => {
+        return request(app)
+          .get("/api/articles?order=backwards")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid order query");
+          });
+      });
+      test("404 GET: should return 'Topic not found' message when given a non-existent topic", () => {
+        return request(app)
+          .get("/api/articles?topic=puppies")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Topic not found");
           });
       });
     });

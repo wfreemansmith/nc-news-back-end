@@ -2,12 +2,17 @@ const {
   selectArticles,
   selectArticleById,
   updateVote,
+  checkTopic,
 } = require("../models/articles.models");
 
 const getArticles = (req, res, next) => {
-  const {topic, sort_by, order} = req.query
-  selectArticles(topic, sort_by, order)
-    .then((articles) => {
+  const { topic, sort_by, order } = req.query;
+
+  const promise1 = selectArticles(topic, sort_by, order);
+  const promise2 = topic ? checkTopic(topic) : "";
+
+  Promise.all([promise1, promise2])
+    .then(([articles]) => {
       res.status(200).send({ articles });
     })
     .catch((err) => {

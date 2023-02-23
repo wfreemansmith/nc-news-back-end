@@ -59,6 +59,58 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
+      test("200 GET: return results filteredby topic", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
+      test("200 GET: return results sorted by user-provided value", () => {
+        return request(app)
+          .get("/api/articles?sort_by=author")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("author", { descending: true });
+          });
+      });
+      test("200 GET: return results ordered either descending or ascending", () => {
+        return request(app)
+          .get("/api/articles?order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("created_at", { descending: false });
+          });
+      });
+      test("200 GET: successfully process multiple queries at the same time", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&sort_by=title&order=asc")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toBeSortedBy("title", { descending: false });
+            articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(11);
+          });
+      });
+      test("200 GET: return empty array if queried topic is valid but there are no matching articles", () => {
+        return request(app)
+          .get("/api/articles?topic=paper")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            expect(articles).toEqual([]);
+          });
+      });
     });
 
     describe("/api/articles/:article_id/comments", () => {
@@ -106,25 +158,58 @@ describe("app", () => {
           .expect(200)
           .then(({ body }) => {
             const { article } = body;
-            expect(article).toHaveProperty("article_id", 1);
-            expect(article).toHaveProperty(
-              "title",
-              "Living in the shadow of a great man"
-            );
-            expect(article).toHaveProperty("author", "butter_bridge");
-            expect(article).toHaveProperty(
-              "body",
-              "I find this existence challenging"
-            );
-            expect(article).toHaveProperty(
-              "created_at",
-              "2020-07-09T20:11:00.000Z"
-            );
-            expect(article).toHaveProperty("votes", 100);
-            expect(article).toHaveProperty(
-              "article_img_url",
+            expect(article.article_id).toBe(1);
+            expect(article.title).toBe("Living in the shadow of a great man");
+            expect(article.author).toBe("butter_bridge");
+            expect(article.body).toBe("I find this existence challenging");
+            expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+            expect(article.votes).toBe(100);
+            expect(article.article_img_url).toBe(
               "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
             );
+          });
+      });
+      test("200 GET: when returning the requested article also return comment count of article", () => {
+        return request(app)
+          .get("/api/articles/1")
+          .expect(200)
+          .then(({ body }) => {
+            const { article } = body;
+            expect(article.comment_count).toBe(11);
+          });
+      });
+      test("200 PATCH: should increment / decrement an articles vote count by given number and respond with updated article", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(200)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            const { article } = body;
+            expect(article.article_id).toBe(1);
+            expect(article.title).toBe("Living in the shadow of a great man");
+            expect(article.author).toBe("butter_bridge");
+            expect(article.body).toBe("I find this existence challenging");
+            expect(article.created_at).toBe("2020-07-09T20:11:00.000Z");
+            expect(article.votes).toBe(110);
+            expect(article.article_img_url).toBe(
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            );
+          });
+      });
+    });
+    describe("/api/users", () => {
+      test("200 GET: should return an array of users", () => {
+        return request(app)
+          .get("/api/users")
+          .expect(200)
+          .then(({ body }) => {
+            const { users } = body;
+            users.forEach((user) => {
+              expect(user).toHaveProperty("username", expect.any(String));
+              expect(user).toHaveProperty("name", expect.any(String));
+              expect(user).toHaveProperty("avatar_url", expect.any(String));
+            });
+            expect(users.length).toBe(4);
           });
       });
     });
@@ -138,6 +223,33 @@ describe("app", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).toBe("Path not found");
+          });
+      });
+    });
+
+    describe("/api/articles", () => {
+      test("400 GET: should return 'Invalid sort query' when given non-existent field", () => {
+        return request(app)
+          .get("/api/articles?sort_by=tornado")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid sort query");
+          });
+      });
+      test("400 GET: should return 'Invalid order query' when given input other than ASC or DESC", () => {
+        return request(app)
+          .get("/api/articles?order=backwards")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid order query");
+          });
+      });
+      test("404 GET: should return 'Topic not found' message when given a non-existent topic", () => {
+        return request(app)
+          .get("/api/articles?topic=puppies")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Topic not found");
           });
       });
     });
@@ -158,6 +270,15 @@ describe("app", () => {
         return request(app)
           .get("/api/articles/sandwich")
           .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
+          });
+      });
+      test("400 PATCH: should return message when user updates to an invalid path", () => {
+        return request(app)
+          .patch("/api/articles/sandwich")
+          .expect(400)
+          .send({ inc_votes: 10 })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid request");
           });
@@ -247,6 +368,44 @@ describe("app", () => {
           .send({ username: "rogersop", body: 123})
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
+          });
+      });
+    });
+    describe("/api/articles/:article_id", () => {
+      test("400 PATCH: should return 'Invalid input' message when posting an object with incomplete data", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: should return 'Invalid input' message when posting an invalid data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ some_random_key: 83 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: should return 'Invalid input' message when object has invalid data type", () => {
+        return request(app)
+          .patch("/api/articles/1")
+          .expect(400)
+          .send({ inc_vote: "rogersop" })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("404: should return 'Article doesn't exist' message when user updates non-existent article", () => {
+        return request(app)
+          .patch("/api/articles/99")
+          .expect(404)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article does not exist");
           });
       });
     });

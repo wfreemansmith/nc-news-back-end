@@ -4,6 +4,7 @@ const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const { expect } = require("@jest/globals");
+const comments = require("../db/data/test-data/comments");
 
 afterAll(() => {
   db.end();
@@ -128,6 +129,24 @@ describe("app", () => {
               expect(comment).toHaveProperty("created_at", expect.any(String));
             });
             expect(comments).toBeSortedBy("created_at", { descending: true });
+          });
+      });
+      test("201 POST: should post a comment to the db and return the posted comment", () => {
+        const comment = {
+          username: "rogersop",
+          body: "Generic comment section antics",
+        };
+        return request(app)
+          .post("/api/articles/3/comments")
+          .expect(201)
+          .send(comment)
+          .then(({ body }) => {
+            const { comment } = body;
+            expect(comment).toHaveProperty("article_id", 3);
+            expect(comment).toHaveProperty("author", "rogersop");
+            expect(comment).toHaveProperty("body", "Generic comment section antics");
+            expect(comment).toHaveProperty("comment_id", 19);
+            expect(comment).toHaveProperty("votes", 0);
           });
       });
     });
@@ -275,6 +294,19 @@ describe("app", () => {
             expect(body.msg).toBe("No results found");
           });
       });
+      test("400 POST: should return 'Article does not exist' message when user posts comment on a non-existent article", () => {
+        const comment = {
+          username: "rogersop",
+          body: "Generic comment section antics",
+        };
+        return request(app)
+          .post("/api/articles/99/comments")
+          .expect(404)
+          .send(comment)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Article does not exist");
+          });
+      });
     });
 
     describe("/api/articles/sandwich/comments", () => {
@@ -284,6 +316,58 @@ describe("app", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid request");
+          });
+      });
+      test("400: should return message when user posts using an invalid path", () => {
+        const comment = {
+          username: "rogersop",
+          body: "Generic comment section antics",
+        };
+        return request(app)
+          .post("/api/articles/sandwich/comments")
+          .expect(400)
+          .send(comment)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
+          });
+      });
+    });
+
+    describe("/api/articles/:article_id/comments", () => {
+      test("400 POST: should return 'Invalid input' message when posting an object with incomplete data", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({ })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 POST: should return 'Invalid input' message when posting an invalid data type", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send("{ }")
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 POST: should return message 'User not found' when provided an invalid username", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(404)
+          .send({ username: "daryl69", body: "hello"})
+          .then(({ body }) => {
+            expect(body.msg).toBe("User does not exist");
+          });
+      });
+      test("400 POST: should return 'Invalid input' message when present fields with invalid data type", () => {
+        return request(app)
+          .post("/api/articles/1/comments")
+          .expect(400)
+          .send({ username: "rogersop", body: 123})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
           });
       });
     });

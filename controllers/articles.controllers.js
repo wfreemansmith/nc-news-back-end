@@ -1,6 +1,8 @@
 const {
   selectArticles,
   selectArticleById,
+  selectCommentsById,
+  insertComment,
   updateVote,
   checkTopic,
 } = require("../models/articles.models");
@@ -31,6 +33,28 @@ const getArticleById = (req, res, next) => {
     });
 };
 
+const getCommentsById = (req, res, next) => {
+  const { article_id } = req.params;
+  selectCommentsById(article_id)
+    .then((comments) => {
+      res.status(200).send({ comments });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+const postComment = (req, res, next) => {
+  const { body, params } = req;
+  insertComment(body, params)
+    .then((comment) => {
+      res.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
 const patchVote = (req, res, next) => {
   const { inc_votes } = req.body;
   const { article_id } = req.params;
@@ -43,4 +67,4 @@ const patchVote = (req, res, next) => {
     });
 };
 
-module.exports = { getArticles, getArticleById, patchVote };
+module.exports = { getArticles, getArticleById, getCommentsById, postComment, patchVote };

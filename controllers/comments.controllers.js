@@ -17,7 +17,14 @@ const getCommentsById = (req, res, next) => {
 };
 
 const postComment = (req, res, next) => {
-  
+   const { body, params } = req;
+  insertComment(body, params)
+    .then((comment) => {
+      res.status(201).send({ comment }); 
+})
+    .catch((err) => {
+      next(err);
+    });
 };
 
 const removeComment = (req, res, next) => {
@@ -25,6 +32,9 @@ const removeComment = (req, res, next) => {
   deleteComment(comment_id)
     .then(() => {
       res.status(204).send();
+
+
+
     })
     .catch((err) => {
       next(err);

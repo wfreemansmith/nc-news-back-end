@@ -21,7 +21,6 @@ const selectCommentsById = (article_id) => {
     });
 };
 
-
 const deleteComment = (comment_id) => {
   if (isNaN(comment_id)) {
     return Promise.reject({ status: 400, msg: "Invalid request" });
@@ -32,6 +31,7 @@ const deleteComment = (comment_id) => {
       return !rowCount
         ? Promise.reject({ status: 404, msg: "Comment not found" })
         : true;
+    });
 };
 
 const insertComment = (commentObj, { article_id }) => {
@@ -59,5 +59,5 @@ const insertComment = (commentObj, { article_id }) => {
     .then((response) => {
       return response.rows[0];
     });
-
+};
 module.exports = { selectCommentsById, insertComment, deleteComment };

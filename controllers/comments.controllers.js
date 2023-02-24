@@ -1,5 +1,5 @@
 const app = require("../app");
-const { deleteComment } = require("../models/comments.models");
+const { deleteComment, updateCommentVote } = require("../models/comments.models");
 
 const removeComment = (req, res, next) => {
   const { comment_id } = req.params;
@@ -12,4 +12,16 @@ const removeComment = (req, res, next) => {
     });
 };
 
-module.exports = { removeComment };
+const patchCommentVote = (req, res, next) => {
+  const { inc_votes } = req.body;
+  const { comment_id } = req.params;
+  updateCommentVote(inc_votes, comment_id)
+    .then((comment) => {
+      res.status(200).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+module.exports = { removeComment, patchCommentVote };

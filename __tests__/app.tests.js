@@ -58,7 +58,7 @@ describe("app", () => {
             expect(articles[0].comment_count).toBe(2);
           });
       });
-      test("200 GET: return results filteredby topic", () => {
+      test("200 GET: return results filtered by topic", () => {
         return request(app)
           .get("/api/articles?topic=mitch")
           .expect(200)
@@ -199,6 +199,7 @@ describe("app", () => {
           });
       });
     });
+
     describe("/api/users", () => {
       test("200 GET: should return an array of users", () => {
         return request(app)
@@ -232,12 +233,29 @@ describe("app", () => {
       });
     });
 
-    describe("/api/comments", () => {
+    describe("/api/comments/:comment_id", () => {
       test("204 DELETE: removes comment by provided comment id", () => {
         return request(app).delete("/api/comments/1").expect(204);
       });
+      test("200 PATCH: should increment / decrement comment vote count by given number and return comment", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .expect(200)
+          .send({ inc_votes: 10 })
+          .then(({ body }) => {
+            const { comment } = body;
+            expect(comment.comment_id).toBe(1);
+            expect(comment.body).toBe(
+              "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!"
+            );
+            expect(comment.votes).toBe(26);
+            expect(comment.author).toBe("butter_bridge");
+            expect(comment.article_id).toBe(9);
+            expect(comment.created_at).toBe("2020-04-06T12:17:00.000Z");
+          });
+      });
     });
-    
+
     describe("/api", () => {
       test("200 GET: should return JSON object of all endpoints on this API", () => {
         return request(app)
@@ -472,6 +490,51 @@ describe("app", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid request");
+          });
+      });
+      test("404 PATCH: return 'Comment not found' when given a comment which does not exist", () => {
+        return request(app)
+          .patch("/api/comments/123")
+          .expect(404)
+          .send({ inc_vote: 3 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Comment not found");
+          });
+      });
+      test("400 PATCH: return 'Invalid request' when given an id that's NaN", () => {
+        return request(app)
+          .patch("/api/comments/all")
+          .expect(400)
+          .send({ inc_vote: 3 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
+          });
+      });
+      test("400 PATCH: return 'Invalid input' message when passed an object with incomplete data", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .expect(400)
+          .send({})
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: return 'Invalid input' message when pass an object with invalid keys", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .expect(400)
+          .send({ some_random_key: 76 })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
+          });
+      });
+      test("400 PATCH: return 'Invalid input' message when passed an object of invalid data type", () => {
+        return request(app)
+          .patch("/api/comments/1")
+          .expect(400)
+          .send({ inc_vote: true })
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid input");
           });
       });
     });

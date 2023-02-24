@@ -71,3 +71,6 @@ The database can be interacted with through the endpoints outlined below. A full
 
 ```DELETE /api/comments/comment_id```
 - Seletes comment by comment id
+
+```PATCH /api/comments/comment_id```
+- Increments or decrements the number of votes on specified comment

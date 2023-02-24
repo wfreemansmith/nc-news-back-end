@@ -142,7 +142,10 @@ describe("app", () => {
             const { comment } = body;
             expect(comment).toHaveProperty("article_id", 3);
             expect(comment).toHaveProperty("author", "rogersop");
-            expect(comment).toHaveProperty("body", "Generic comment section antics");
+            expect(comment).toHaveProperty(
+              "body",
+              "Generic comment section antics"
+            );
             expect(comment).toHaveProperty("comment_id", 19);
             expect(comment).toHaveProperty("votes", 0);
           });
@@ -219,7 +222,6 @@ describe("app", () => {
           .expect(200)
           .then(({ body }) => {
             const { user } = body;
-            console.log(body)
             expect(user.username).toBe("butter_bridge");
             expect(user.name).toBe("jonny");
             expect(user.avatar_url).toBe(
@@ -353,7 +355,7 @@ describe("app", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(400)
-          .send({ })
+          .send({})
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -371,7 +373,7 @@ describe("app", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(404)
-          .send({ username: "daryl69", body: "hello"})
+          .send({ username: "daryl69", body: "hello" })
           .then(({ body }) => {
             expect(body.msg).toBe("User not found");
           });
@@ -380,7 +382,7 @@ describe("app", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(400)
-          .send({ username: "rogersop", body: 123})
+          .send({ username: "rogersop", body: 123 })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -421,6 +423,16 @@ describe("app", () => {
           .send({ inc_votes: 10 })
           .then(({ body }) => {
             expect(body.msg).toBe("Article not found");
+          });
+      });
+    });
+    describe("/api/users/:username", () => {
+      test("404 GET: should return 'User not found' when requesting a valid but non-existent user", () => {
+        return request(app)
+          .get("/api/users/dave-mcfiggins")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("User not found");
           });
       });
     });

@@ -237,6 +237,7 @@ describe("app", () => {
         return request(app).delete("/api/comments/1").expect(204);
       });
     });
+    
     describe("/api", () => {
       test("200 GET: should return JSON object of all endpoints on this API", () => {
         return request(app)
@@ -452,9 +453,10 @@ describe("app", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).toBe("User not found");
-            }):
-            })
-            })
+          });
+      });
+    });
+
     describe("/api/comments/:comment_id", () => {
       test("404 DELETE: return 'Comment not found' when given a comment which does not exist", () => {
         return request(app)
@@ -470,7 +472,6 @@ describe("app", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid request");
-
           });
       });
     });

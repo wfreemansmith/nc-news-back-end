@@ -215,6 +215,12 @@ describe("app", () => {
           });
       });
     });
+    describe("/api/comments", () => {
+      test("204 DELETE: removes comment by provided comment id", () => {
+        return request(app).delete("/api/comments/1").expect(204);
+
+      });
+    });
     describe("/api", () => {
       test("200 GET: should return JSON object of all endpoints on this API", () => {
         return request(app)
@@ -224,8 +230,9 @@ describe("app", () => {
             const { endpoints } = body;
             expect(endpoints).toEqual(endpointJSON);
           });
-      });
-    });
+});
+});
+    
   });
 
   describe("Error handling", () => {
@@ -419,6 +426,24 @@ describe("app", () => {
           .send({ inc_votes: 10 })
           .then(({ body }) => {
             expect(body.msg).toBe("Article not found");
+          });
+      });
+    });
+    describe("/api/comments/:comment_id", () => {
+      test("404 DELETE: return 'Comment not found' when given a comment which does not exist", () => {
+        return request(app)
+          .delete("/api/comments/123")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Comment not found");
+          });
+      });
+      test("400 DELETE: return 'Invalid request' when given an id that's NaN", () => {
+        return request(app)
+          .delete("/api/comments/all")
+          .expect(400)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Invalid request");
           });
       });
     });

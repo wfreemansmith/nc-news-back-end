@@ -3,6 +3,7 @@ const app = require("../app");
 const db = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+const endpointJSON = require("../endpoints.json");
 
 afterAll(() => {
   db.end();
@@ -142,7 +143,10 @@ describe("app", () => {
             const { comment } = body;
             expect(comment).toHaveProperty("article_id", 3);
             expect(comment).toHaveProperty("author", "rogersop");
-            expect(comment).toHaveProperty("body", "Generic comment section antics");
+            expect(comment).toHaveProperty(
+              "body",
+              "Generic comment section antics"
+            );
             expect(comment).toHaveProperty("comment_id", 19);
             expect(comment).toHaveProperty("votes", 0);
           });
@@ -208,6 +212,17 @@ describe("app", () => {
               expect(user).toHaveProperty("avatar_url", expect.any(String));
             });
             expect(users.length).toBe(4);
+          });
+      });
+    });
+    describe("/api", () => {
+      test("200 GET: should return JSON object of all endpoints on this API", () => {
+        return request(app)
+          .get("/api")
+          .expect(200)
+          .then(({ body }) => {
+            const { endpoints } = body;
+            expect(endpoints).toEqual(endpointJSON);
           });
       });
     });
@@ -336,7 +351,7 @@ describe("app", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(400)
-          .send({ })
+          .send({})
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });
@@ -354,7 +369,7 @@ describe("app", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(404)
-          .send({ username: "daryl69", body: "hello"})
+          .send({ username: "daryl69", body: "hello" })
           .then(({ body }) => {
             expect(body.msg).toBe("User not found");
           });
@@ -363,7 +378,7 @@ describe("app", () => {
         return request(app)
           .post("/api/articles/1/comments")
           .expect(400)
-          .send({ username: "rogersop", body: 123})
+          .send({ username: "rogersop", body: 123 })
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid input");
           });

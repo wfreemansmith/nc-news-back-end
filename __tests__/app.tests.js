@@ -218,7 +218,6 @@ describe("app", () => {
     describe("/api/comments", () => {
       test("204 DELETE: removes comment by provided comment id", () => {
         return request(app).delete("/api/comments/1").expect(204);
-
       });
     });
     describe("/api", () => {
@@ -230,9 +229,8 @@ describe("app", () => {
             const { endpoints } = body;
             expect(endpoints).toEqual(endpointJSON);
           });
-});
-});
-    
+      });
+    });
   });
 
   describe("Error handling", () => {

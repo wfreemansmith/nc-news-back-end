@@ -215,6 +215,23 @@ describe("app", () => {
           });
       });
     });
+
+    describe("/api/users/:username", () => {
+      test("200 GET: should return a user by user object", () => {
+        return request(app)
+          .get("/api/users/butter_bridge")
+          .expect(200)
+          .then(({ body }) => {
+            const { user } = body;
+            expect(user.username).toBe("butter_bridge");
+            expect(user.name).toBe("jonny");
+            expect(user.avatar_url).toBe(
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+            );
+          });
+      });
+    });
+
     describe("/api/comments", () => {
       test("204 DELETE: removes comment by provided comment id", () => {
         return request(app).delete("/api/comments/1").expect(204);
@@ -429,6 +446,17 @@ describe("app", () => {
           });
       });
     });
+
+    describe("/api/users/:username", () => {
+      test("404 GET: should return 'User not found' when requesting a valid but non-existent user", () => {
+        return request(app)
+          .get("/api/users/dave-mcfiggins")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("User not found");
+            }):
+            })
+            })
     describe("/api/comments/:comment_id", () => {
       test("404 DELETE: return 'Comment not found' when given a comment which does not exist", () => {
         return request(app)
@@ -444,6 +472,7 @@ describe("app", () => {
           .expect(400)
           .then(({ body }) => {
             expect(body.msg).toBe("Invalid request");
+
           });
       });
     });

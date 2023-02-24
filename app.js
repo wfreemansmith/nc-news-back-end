@@ -21,7 +21,7 @@ const {
   dbErrorHandler,
 } = require("./controllers/error-handling.controllers.js");
 
-const { getUsers } = require("./controllers/users.controllers");
+const { getUsers, getUserByUsername } = require("./controllers/users.controllers");
 
 const { getEndpoints } = require("./controllers/endpoints.controller.js")
 
@@ -32,8 +32,10 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsById);
-app.get("/api/users", getUsers);
-app.get("/api", getEndpoints)
+app.get("/api/users", getUsers)
+app.get("/api/users/:username", getUserByUsername)
+app.get("/api", getEndpoints);
+
 app.post("/api/articles/:article_id/comments", postComment);
 app.patch("/api/articles/:article_id", patchVote);
 app.delete("/api/comments/:comment_id", removeComment);

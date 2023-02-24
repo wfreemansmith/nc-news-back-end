@@ -7,7 +7,7 @@ A hosted version of this repo can be found here: https://backend-project-nc-news
 
 ## Local set-up
 
-Before installing locally, ensure that you have as a minimum PostgreSQL version.??? and Node version?? set up on your system. You will be interacting with PSQL using [node-postgres](https://node-postgres.com/).
+Before installing locally, ensure that you have as a minimum PostgreSQL v15.1 and Node v19.2.0 set up on your system. You will be interacting with PSQL using [node-postgres](https://node-postgres.com/).
 
 To clone this repo to your local computer, navigate to the desired destination on your system and type ```git clone https://github.com/wfreemansmith/nc-news.git``` into the command line.
 
@@ -59,6 +59,9 @@ The database can be interacted with through the endpoints outlined below. A full
 
 ```GET /api/users```
 - Serves an array of all users
+
+```GET /api/users/:userid```
+- Serves up the requested user by user ID
 
 ```POST /api/articles/:article_id/comments```
 - Posts a new comment to a specified article and returns comment

@@ -21,6 +21,19 @@ const selectCommentsById = (article_id) => {
     });
 };
 
+
+const deleteComment = (comment_id) => {
+  if (isNaN(comment_id)) {
+    return Promise.reject({ status: 400, msg: "Invalid request" });
+  }
+  return db
+    .query(`DELETE FROM comments WHERE comment_id = ${comment_id};`)
+    .then(({ rowCount }) => {
+      return !rowCount
+        ? Promise.reject({ status: 404, msg: "Comment not found" })
+        : true;
+};
+
 const insertComment = (commentObj, { article_id }) => {
   const { body, username } = commentObj;
 
@@ -46,6 +59,5 @@ const insertComment = (commentObj, { article_id }) => {
     .then((response) => {
       return response.rows[0];
     });
-};
 
-module.exports = { selectCommentsById, insertComment };
+module.exports = { selectCommentsById, insertComment, deleteComment };

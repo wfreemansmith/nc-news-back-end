@@ -211,6 +211,23 @@ describe("app", () => {
           });
       });
     });
+
+    describe("/api/users/:username", () => {
+      test("200 GET: should return a user by user object", () => {
+        return request(app)
+          .get("/api/users/butter_bridge")
+          .expect(200)
+          .then(({ body }) => {
+            const { user } = body;
+            console.log(body)
+            expect(user.username).toBe("butter_bridge");
+            expect(user.name).toBe("jonny");
+            expect(user.avatar_url).toBe(
+              "https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg"
+            );
+          });
+      });
+    });
   });
 
   describe("Error handling", () => {

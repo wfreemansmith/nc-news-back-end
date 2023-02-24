@@ -20,7 +20,7 @@ const {
   dbErrorHandler,
 } = require("./controllers/error-handling.controllers.js");
 
-const { getUsers } = require("./controllers/users.controllers");
+const { getUsers, getUserByUsername } = require("./controllers/users.controllers");
 
 const app = express();
 app.use(express.json())
@@ -30,6 +30,7 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getCommentsById);
 app.get("/api/users", getUsers)
+app.get("/api/users/:username", getUserByUsername)
 
 app.post("/api/articles/:article_id/comments", postComment);
 

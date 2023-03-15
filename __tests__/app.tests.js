@@ -70,6 +70,31 @@ describe("app", () => {
             expect(articles).toHaveLength(11);
           });
       });
+      test("200 GET: return results filtered by author", () => {
+        return request(app)
+          .get("/api/articles?author=butter_bridge")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.author).toBe("butter_bridge");
+            });
+            expect(articles).toHaveLength(3);
+          });
+      });
+      test("200 GET: return results filtered by topic and author", () => {
+        return request(app)
+          .get("/api/articles?topic=mitch&author=rogersop")
+          .expect(200)
+          .then(({ body }) => {
+            const { articles } = body;
+            articles.forEach((article) => {
+              expect(article.author).toBe("rogersop");
+              expect(article.topic).toBe("mitch");
+            });
+            expect(articles).toHaveLength(2);
+          });
+      });
       test("200 GET: return results sorted by user-provided value", () => {
         return request(app)
           .get("/api/articles?sort_by=author")
@@ -304,6 +329,14 @@ describe("app", () => {
           .expect(404)
           .then(({ body }) => {
             expect(body.msg).toBe("Topic not found");
+          });
+      });
+      test("404 GET: should return 'Author not found' message when given a non-existent topic", () => {
+        return request(app)
+          .get("/api/articles?author=christian")
+          .expect(404)
+          .then(({ body }) => {
+            expect(body.msg).toBe("Author not found");
           });
       });
     });

@@ -5,15 +5,17 @@ const {
   insertComment,
   updateVote,
   checkTopic,
+  checkAuthor
 } = require("../models/articles.models");
 
 const getArticles = (req, res, next) => {
-  const { topic, sort_by, order } = req.query;
+  const { topic, sort_by, order, author } = req.query;
 
-  const promise1 = selectArticles(topic, sort_by, order);
+  const promise1 = selectArticles(topic, sort_by, order, author);
   const promise2 = topic ? checkTopic(topic) : "";
+  const promise3 = author ? checkAuthor(author) : "";
 
-  Promise.all([promise1, promise2])
+  Promise.all([promise1, promise2, promise3])
     .then(([articles]) => {
       res.status(200).send({ articles });
     })

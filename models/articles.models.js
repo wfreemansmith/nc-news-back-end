@@ -1,6 +1,6 @@
 const db = require("../db/connection.js");
 
-const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
+const selectArticles = (topic, sort_by = "created_at", order = "desc", author) => {
   const sortbyWhitelist = ["title", "topic", "author", "body", "created_at"];
 
   if (!sortbyWhitelist.includes(sort_by.toLocaleLowerCase())) {
@@ -17,6 +17,13 @@ const selectArticles = (topic, sort_by = "created_at", order = "desc") => {
   if (topic) {
     topicQuery = `WHERE topic = $1 `;
     queryValues.push(topic);
+  }
+  if (topic && author) {
+    topicQuery += `AND articles.author = $2 `;
+    queryValues.push(author)
+  } else if (author && !topic) {
+    topicQuery = `WHERE articles.author = $1 `;
+    queryValues.push(author)
   }
 
   return db
@@ -52,6 +59,22 @@ const checkTopic = (topic) => {
     .then(({ rowCount }) => {
       return !rowCount
         ? Promise.reject({ status: 404, msg: "Topic not found" })
+        : true;
+    });
+};
+
+const checkAuthor = (author) => {
+  return db
+    .query(
+      `
+      SELECT * FROM users
+      WHERE username = $1
+      `,
+      [author]
+    )
+    .then(({ rowCount }) => {
+      return !rowCount
+        ? Promise.reject({ status: 404, msg: "Author not found" })
         : true;
     });
 };
@@ -162,4 +185,5 @@ module.exports = {
   insertComment,
   updateVote,
   checkTopic,
+  checkAuthor
 };
